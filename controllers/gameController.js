@@ -1,9 +1,32 @@
-const game = require("../models/game");
+const Game = require("../models/game");
+const GameInstance = require("../models/gameinstance");
+const Genre = require("../models/genre");
+const Developer = require("../models/developer");
+const Console = require("../models/console");
+
 const asyncHandler = require("express-async-handler");
 
 // Displays the Inventory home page
 exports.index = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Home page");
+  // res.send("Not implemented: Home page");
+  // Get the count of all games, game instances, consoles, developers, and genres in parallel.
+  const [numGames, numGameInstances, numConsoles, numDevelopers, numGenres] =
+    await Promise.all([
+      Game.countDocuments({}).exec(),
+      GameInstance.countDocuments({}).exec(),
+      Console.countDocuments({}).exec(),
+      Developer.countDocuments({}).exec(),
+      Genre.countDocuments({}).exec(),
+    ]);
+
+  res.render("index", {
+    title: "Video Game Inventory Home",
+    game_count: numGames,
+    game_instance_count: numGameInstances,
+    console_count: numConsoles,
+    developer_count: numDevelopers,
+    genre_count: numGenres,
+  });
 });
 
 // Displays a list of all Games.
