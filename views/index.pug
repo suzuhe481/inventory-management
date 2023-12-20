@@ -2,4 +2,14 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
+  p Welcome to the #[em Video Game Inventory]. This site keeps track of the inventory of video games currently on sale.
+  p Saved video game details include game titles, genres, conditions, consoles, developers, and more.
+
+  p The inventory currently contains the following.
+
+  ul 
+    li #[strong Games:] !{game_count}
+    li #[strong Game Instances (copies):] !{game_instance_count}
+    li #[strong Consoles:] !{console_count}
+    li #[strong Developers:] !{developer_count}
+    li #[strong Genres:] !{genre_count}
