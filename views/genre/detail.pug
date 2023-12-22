@@ -1,0 +1,12 @@
+extends ../template/layout 
+
+block content
+  h1= title 
+
+
+  ul
+    each game in genre_games
+      li
+        a(href=game.url) #{game.title}
+    else 
+      p This genre has no games.
