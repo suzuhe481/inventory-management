@@ -8,7 +8,7 @@ exports.gameinstance_list = asyncHandler(async (req, res, next) => {
     .sort()
     .exec();
 
-  res.render("gameinstance_list", {
+  res.render("gameinstance/list", {
     title: "Game Instance List",
     gameinstance_list: allGameInstances,
   });
@@ -16,7 +16,20 @@ exports.gameinstance_list = asyncHandler(async (req, res, next) => {
 
 // Displays the detail page for a specific GameInstance.
 exports.gameinstance_detail = asyncHandler(async (req, res, next) => {
-  res.send(`Not implemented: GameInstance detail: ${req.params.id} `);
+  const gameInstance = await GameInstance.findById(req.params.id)
+    .populate("game console")
+    .exec();
+
+  if (gameInstance === null) {
+    const err = "Game copy not found";
+    err.status = 404;
+    return next(err);
+  }
+
+  res.render("gameinstance/detail", {
+    title: `Game Instance: ${gameInstance.game.title}`,
+    gameinstance: gameInstance,
+  });
 });
 
 // Displays GameInstance create form on GET.
