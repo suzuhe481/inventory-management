@@ -8,7 +8,6 @@ const asyncHandler = require("express-async-handler");
 
 // Displays the Inventory home page
 exports.index = asyncHandler(async (req, res, next) => {
-  // res.send("Not implemented: Home page");
   // Get the count of all games, game instances, consoles, developers, and genres in parallel.
   const [numGames, numGameInstances, numConsoles, numDevelopers, numGenres] =
     await Promise.all([
@@ -31,7 +30,12 @@ exports.index = asyncHandler(async (req, res, next) => {
 
 // Displays a list of all Games.
 exports.game_list = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Game list");
+  const allGames = await Game.find({}, "title developer consoles_available")
+    .sort({ title: 1 })
+    .populate("developer consoles_available")
+    .exec();
+
+  res.render("game_list", { title: "Game List", game_list: allGames });
 });
 
 // Displays the detail page for a specific Game.
