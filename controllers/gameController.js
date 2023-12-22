@@ -40,7 +40,26 @@ exports.game_list = asyncHandler(async (req, res, next) => {
 
 // Displays the detail page for a specific Game.
 exports.game_detail = asyncHandler(async (req, res, next) => {
-  res.send(`Not implemented: Game detail: ${req.params.id} `);
+  // Get details for a specific game and all their game instances.
+  const [game, gameInstances] = await Promise.all([
+    Game.findById(req.params.id)
+      .populate("developer consoles_available genres description")
+      .exec(),
+    GameInstance.find({ game: req.params.id }).populate("console").exec(),
+  ]);
+
+  // No results.
+  if (game === null) {
+    const error = new Error("Game not found");
+    err.status = 404;
+    return next(err);
+  }
+
+  res.render("game_detail", {
+    title: game.title,
+    game: game,
+    game_instances: gameInstances,
+  });
 });
 
 // Displays Game create form on GET.
