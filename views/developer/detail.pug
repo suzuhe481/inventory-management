@@ -1,0 +1,14 @@
+extends ../template/layout
+
+block content 
+  h1= title 
+
+  p #{developer.name}
+
+  each game in developer_games
+    hr
+    a(href=game.url) #{game.title}
+    p #[strong Platforms: ] #{game.consoles_list}
+    p #[strong Genres:] #{game.genres_list}
+  else 
+    p There are no games for this developer.
