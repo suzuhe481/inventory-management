@@ -1,9 +1,14 @@
-const developer = require("../models/developer");
+const Developer = require("../models/developer");
 const asyncHandler = require("express-async-handler");
 
 // Displays a list of all Developers.
 exports.developer_list = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Developer list");
+  const allDevelopers = await Developer.find({}).sort().exec();
+
+  res.render("developer_list", {
+    title: "Developer List",
+    developer_list: allDevelopers,
+  });
 });
 
 // Displays the detail page for a specific Developer.
