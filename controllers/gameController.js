@@ -35,7 +35,7 @@ exports.game_list = asyncHandler(async (req, res, next) => {
     .populate("developer consoles_available")
     .exec();
 
-  res.render("game_list", { title: "Game List", game_list: allGames });
+  res.render("game/list", { title: "Game List", game_list: allGames });
 });
 
 // Displays the detail page for a specific Game.
@@ -55,7 +55,7 @@ exports.game_detail = asyncHandler(async (req, res, next) => {
     return next(err);
   }
 
-  res.render("game_detail", {
+  res.render("game/detail", {
     title: game.title,
     game: game,
     game_instances: gameInstances,
