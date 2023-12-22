@@ -1,0 +1,11 @@
+extend layout 
+
+block content 
+  h1= title 
+
+  ul 
+    each console in console_list 
+      li
+        a(href=console.url) #{console.name}
+    else 
+      p There are no consoles.
