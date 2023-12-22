@@ -13,7 +13,18 @@ exports.console_list = asyncHandler(async (req, res, next) => {
 
 // Displays the detail page for a specific Console.
 exports.console_detail = asyncHandler(async (req, res, next) => {
-  res.send(`Not implemented: Console detail: ${req.params.id} `);
+  const console = await Console.findById(req.params.id).exec();
+
+  if (console === null) {
+    const err = "Console not found";
+    err.status = 404;
+    return next(err);
+  }
+
+  res.render("console/detail", {
+    title: `Console: ${console.name}`,
+    console: console,
+  });
 });
 
 // Displays Console create form on GET.
