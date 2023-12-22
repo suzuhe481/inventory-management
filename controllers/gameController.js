@@ -45,7 +45,7 @@ exports.game_detail = asyncHandler(async (req, res, next) => {
     Game.findById(req.params.id)
       .populate("developer consoles_available genres description")
       .exec(),
-    GameInstance.find({ game: req.params.id }).populate("console").exec(),
+    GameInstance.find({ game: req.params.id }).populate("game console").exec(),
   ]);
 
   // No results.
