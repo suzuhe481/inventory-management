@@ -3,7 +3,12 @@ const asyncHandler = require("express-async-handler");
 
 // Displays a list of all Consoles.
 exports.console_list = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Console list");
+  const allConsoles = await Console.find({}).sort().exec();
+
+  res.render("console_list", {
+    title: "Console List",
+    console_list: allConsoles,
+  });
 });
 
 // Displays the detail page for a specific Console.
