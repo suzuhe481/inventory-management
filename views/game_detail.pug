@@ -1,0 +1,24 @@
+extend layout 
+
+block content 
+  h1= title 
+
+  p #[strong Developer:] #{game.developer.name}
+  p #[strong Released: ] #{game.released_formatted}
+  p #[strong Genre: ] #{game.genres_list}
+  p #[strong Available on: ] #{game.consoles_list}
+
+  br
+  
+  h4 Description
+  p #{game.description}
+
+  h3 Copies 
+
+  each copy in game_instances
+    hr
+    p #{copy.condition} 
+    p #{copy.console.name}
+    p $#{copy.price}
+  else 
+    p There are no copies of this game.
