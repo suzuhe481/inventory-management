@@ -4,7 +4,7 @@ const asyncHandler = require("express-async-handler");
 
 // Displays a list of all Developers.
 exports.developer_list = asyncHandler(async (req, res, next) => {
-  const allDevelopers = await Developer.find({}).sort().exec();
+  const allDevelopers = await Developer.find({}).sort({ name: 1 }).exec();
 
   res.render("developer/list", {
     title: "Developer List",
