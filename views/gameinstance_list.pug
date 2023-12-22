@@ -1,0 +1,15 @@
+extends layout 
+
+block content 
+  h1= title
+
+  ul 
+    each gameinstance in gameinstance_list 
+      li
+        a(href=gameinstance.url) #{gameinstance.game.title}
+        p $#{gameinstance.price}
+        p Condition: #{gameinstance.condition}
+        br
+        
+    else 
+      p There are no game instances.
