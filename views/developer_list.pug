@@ -1,0 +1,11 @@
+extends layout 
+
+block content 
+  h1= title
+
+  ul 
+    each developer in developer_list 
+      li
+        a(href=developer.url) #{developer.name}
+    else 
+      p There are no developers.
