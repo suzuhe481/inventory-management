@@ -26,5 +26,19 @@ GameSchema.virtual("url").get(function () {
   return `/catalog/game/${this._id}`;
 });
 
+// Virtual for list of game's consoles.
+// Returns consoles as a comma separated string.
+GameSchema.virtual("consoles_list").get(function () {
+  var consoleList = "";
+  for (var i = 0; i < this.consoles_available.length; i++) {
+    consoleList += this.consoles_available[i].name;
+
+    if (i < this.consoles_available.length - 1) {
+      consoleList += ", ";
+    }
+  }
+  return consoleList;
+});
+
 // Export model
 module.exports = mongoose.model("Game", GameSchema);
