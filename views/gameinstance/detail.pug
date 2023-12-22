@@ -1,0 +1,9 @@
+extends ../template/layout
+
+block content
+  h1= title
+
+  
+  p #[strong Condition: ]#{gameinstance.condition} 
+  p #[strong Platform: ] #{gameinstance.console.name}
+  p $#{gameinstance.price}
