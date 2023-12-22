@@ -1,4 +1,5 @@
 const Developer = require("../models/developer");
+const Game = require("../models/game");
 const asyncHandler = require("express-async-handler");
 
 // Displays a list of all Developers.
@@ -13,7 +14,24 @@ exports.developer_list = asyncHandler(async (req, res, next) => {
 
 // Displays the detail page for a specific Developer.
 exports.developer_detail = asyncHandler(async (req, res, next) => {
-  res.send(`Not implemented: Developer detail: ${req.params.id} `);
+  const [developer, gamesByDeveloper] = await Promise.all([
+    Developer.findById(req.params.id).exec(),
+    Game.find({ developer: req.params.id })
+      .populate("consoles_available genres")
+      .exec(),
+  ]);
+
+  if (developer === null) {
+    const err = new Error("Developer not found");
+    err.status = 404;
+    return next(err);
+  }
+
+  res.render("developer/detail", {
+    title: `Developer: ${developer.name}`,
+    developer: developer,
+    developer_games: gamesByDeveloper,
+  });
 });
 
 // Displays Developer create form on GET.
