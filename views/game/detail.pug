@@ -1,4 +1,4 @@
-extend layout 
+extends ../template/layout  
 
 block content 
   h1= title 
@@ -11,15 +11,20 @@ block content
   br
   
   h4 Description
-  p #{game.description}
+  if game.description
+    p #{game.description}
+  else 
+    p No description available.
+
+  br
 
   h3 Copies 
 
   each copy in game_instances
     hr
     a(href=copy.url) #{copy.game.title}
-    p #{copy.condition} 
-    p #{copy.console.name}
+    p #[strong Condition: ]#{copy.condition} 
+    p #[strong Platform: ] #{copy.console.name}
     p $#{copy.price}
   else 
     p There are no copies of this game.
