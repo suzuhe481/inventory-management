@@ -27,7 +27,7 @@ const GameInstanceSchema = new Schema({
 
 // Virtual for game instance's url.
 GameInstanceSchema.virtual("url").get(function () {
-  return `/catalog/gameinstance/${this._id}`;
+  return `/inventory/gameinstance/${this._id}`;
 });
 
 // Export model

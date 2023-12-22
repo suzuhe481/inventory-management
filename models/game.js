@@ -23,7 +23,7 @@ const GameSchema = new Schema({
 
 // Virtual for game's url.
 GameSchema.virtual("url").get(function () {
-  return `/catalog/game/${this._id}`;
+  return `/inventory/game/${this._id}`;
 });
 
 // Virtual for list of game's consoles.

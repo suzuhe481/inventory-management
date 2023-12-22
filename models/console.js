@@ -13,7 +13,7 @@ const ConsoleSchema = new Schema({
 
 // Virtual for console's url.
 ConsoleSchema.virtual("url").get(function () {
-  return `/catalog/console/${this._id}`;
+  return `/inventory/console/${this._id}`;
 });
 
 // Export model

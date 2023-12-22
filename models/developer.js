@@ -13,7 +13,7 @@ const DeveloperSchema = new Schema({
 
 // Virtual for developer's url.
 DeveloperSchema.virtual("url").get(function () {
-  return `/catalog/developer/${this._id}`;
+  return `/inventory/developer/${this._id}`;
 });
 
 // Export model
