@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { DateTime } = require("luxon");
 
 const Schema = mongoose.Schema;
 
@@ -38,6 +39,25 @@ GameSchema.virtual("consoles_list").get(function () {
     }
   }
   return consoleList;
+});
+
+// Virtual for list of game's genres.
+// Returns genres as a comma separated string.
+GameSchema.virtual("genres_list").get(function () {
+  var genreList = "";
+  for (var i = 0; i < this.genres.length; i++) {
+    genreList += this.genres[i].name;
+
+    if (i < this.genres.length - 1) {
+      genreList += ", ";
+    }
+  }
+  return genreList;
+});
+
+// Virtual for formatted game's released day.
+GameSchema.virtual("released_formatted").get(function () {
+  return DateTime.fromJSDate(this.released).toLocaleString(DateTime.DATE_MED);
 });
 
 // Export model
