@@ -1,6 +1,8 @@
 const Genre = require("../models/genre");
 const Game = require("../models/game");
+
 const asyncHandler = require("express-async-handler");
+const { body, validationResult } = require("express-validator");
 
 // Displays a list of all Genres.
 exports.genre_list = asyncHandler(async (req, res, next) => {
@@ -33,9 +35,9 @@ exports.genre_detail = asyncHandler(async (req, res, next) => {
 });
 
 // Displays Genre create form on GET.
-exports.genre_create_get = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Genre create GET");
-});
+exports.genre_create_get = (req, res, next) => {
+  res.render("genre/form", { title: "Create Genre" });
+};
 
 // Handles Genre create on POST.
 exports.genre_create_post = asyncHandler(async (req, res, next) => {
