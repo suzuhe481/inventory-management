@@ -8,3 +8,8 @@ block content
       label(for="name") Genre: 
       input#name.form-control(type="text", placeholder="Action, Adventure, etc..." name="name" required=true)
       button.btn.btn-primary(type="submit") Submit
+
+  if errors 
+    ul 
+      for error in errors 
+        li!= error.msg
