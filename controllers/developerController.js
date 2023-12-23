@@ -1,6 +1,8 @@
 const Developer = require("../models/developer");
 const Game = require("../models/game");
+
 const asyncHandler = require("express-async-handler");
+const { body, validationResult } = require("express-validator");
 
 // Displays a list of all Developers.
 exports.developer_list = asyncHandler(async (req, res, next) => {
@@ -35,14 +37,57 @@ exports.developer_detail = asyncHandler(async (req, res, next) => {
 });
 
 // Displays Developer create form on GET.
-exports.developer_create_get = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Developer create GET");
-});
+exports.developer_create_get = (req, res, next) => {
+  res.render("developer/form", { title: "Create Developer" });
+};
 
 // Handles Developer create on POST.
-exports.developer_create_post = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Developer create POST");
-});
+exports.developer_create_post = [
+  // Validate and sanitize name field.
+  body("name", "Developer must contain at least 1 character.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+
+  // Process request after validation and sanitation.
+  asyncHandler(async (req, res, next) => {
+    // Extract the validation errors.
+    const errors = validationResult(req);
+
+    // Create developer object with escaped/trimmed data.
+    const developer = new Developer({ name: req.body.name });
+
+    // There are errors.
+    // Render form again with sanitized values and error messages.
+    if (!errors.isEmpty()) {
+      res.render("developer/form", {
+        title: "Create Developer",
+        developer: developer,
+        errors: errors.array(),
+      });
+      return;
+    }
+    // Data is valid.
+    else {
+      // Check if developer already exists.
+      // Case insensitive search and ignores accents.
+      const developerExists = await Developer.findOne({ name: req.body.name })
+        .collation({ locale: "en", strength: 2 })
+        .exec();
+
+      // Redirect to existing developer's detail page.
+      if (developerExists) {
+        res.redirect(developerExists.url);
+      }
+      // Save new developer.
+      // Redirect to it's detail page.
+      else {
+        await developer.save();
+        res.redirect(developer.url);
+      }
+    }
+  }),
+];
 
 // Displays Developer delete form on GET.
 exports.developer_delete_get = asyncHandler(async (req, res, next) => {
