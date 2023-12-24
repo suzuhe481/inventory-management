@@ -1,5 +1,7 @@
 const Console = require("../models/console");
+
 const asyncHandler = require("express-async-handler");
+const { body, validationResult } = require("express-validator");
 
 // Displays a list of all Consoles.
 exports.console_list = asyncHandler(async (req, res, next) => {
@@ -28,14 +30,49 @@ exports.console_detail = asyncHandler(async (req, res, next) => {
 });
 
 // Displays Console create form on GET.
-exports.console_create_get = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Console create GET");
-});
+exports.console_create_get = (req, res, next) => {
+  res.render("console/form", { title: "Create Console" });
+};
 
 // Handles Console create on POST.
-exports.console_create_post = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Console create POST");
-});
+exports.console_create_post = [
+  // Validate form fields.
+  body("name", "Console must contain at least 1 character.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  // Async
+  asyncHandler(async (req, res, next) => {
+    // Extract errors from request.
+    const errors = validationResult(req);
+
+    // Create object
+    const console = new Console({ name: req.body.name });
+
+    // Return form if errors exist
+    if (!errors.isEmpty()) {
+      res.render("console/form", {
+        title: "Create Console",
+        console: console,
+        errors: errors.array(),
+      });
+    } else {
+      // Redirect to object page if object exists.
+      const consoleExists = await Console.findOne({ name: req.body.name })
+        .collation({ locale: "en", strength: 2 })
+        .exec();
+
+      if (consoleExists) {
+        res.redirect(consoleExists.url);
+      }
+      // Save and redirect to new page.
+      else {
+        await console.save();
+        res.redirect(console.url);
+      }
+    }
+  }),
+];
 
 // Displays Console delete form on GET.
 exports.console_delete_get = asyncHandler(async (req, res, next) => {
