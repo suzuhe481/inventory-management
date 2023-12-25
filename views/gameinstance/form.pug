@@ -11,22 +11,25 @@ block content
         for game in game_list 
           option(value=game._id selected=(gameinstance === undefined ? false : gameinstance.game==game._id.toString())) #{game.title}
 
+    div.form-group
       label(for="console") Console: 
       select#console.form-control(type="select" placeholder="Select Console" name="console" required=true)
         option(value="" disabled selected) Select Console
-       
+
+    div.form-group   
       label(for="price") Price:
       input#price.form-control(type="number" name="price" min=0.00 step=0.01 required=true value=(gameinstance===undefined ? "" : gameinstance.price.toFixed(2)))
 
+    div.form-group
       label(for="condition") Condition: 
       select#condition.form-control(type="select" placeholder="Select Condition" name="condition" required=true)
         option(value="" disabled selected) Select Condition
         option(value="New" selected=(gameinstance===undefined || gameinstance.condition!="New" ? false : "selected")) New 
         option(value="Used" selected=(gameinstance===undefined || gameinstance.condition!="Used" ? false : "selected")) Used
       
-      br
 
-      button.btn.btn-primary(type="submit") Submit
+
+    button.btn.btn-primary(type="submit") Submit
 
   if errors 
     ul 
