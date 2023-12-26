@@ -3,10 +3,25 @@ extends ../template/layout
 block content 
   h1= title 
 
-  p #[strong Developer:] #{game.developer.name}
-  p #[strong Released: ] #{game.released_formatted}
-  p #[strong Genre: ] #{game.genres_list}
-  p #[strong Available on: ] #{game.consoles_list}
+  if game.developer
+    p #[strong Developer:] #{game.developer.name}
+  else 
+    p #[strong Developer:] Developer Unannounced
+  
+  if game.released
+    p #[strong Released Date: ] #{game.released_formatted}
+  else 
+    p #[strong Released Date: ] Release date Unannounced
+  
+  if game.genres_list 
+    p #[strong Genre: ] #{game.genres_list}
+  else
+    p #[strong Genre: ] Genres Unannounced
+
+  if game.consoles_list
+    p #[strong Available on: ] #{game.consoles_list}
+  else
+    p #[strong Available on: ] Consoles Unannounced
 
   br
   
