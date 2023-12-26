@@ -60,5 +60,10 @@ GameSchema.virtual("released_formatted").get(function () {
   return DateTime.fromJSDate(this.released).toLocaleString(DateTime.DATE_MED);
 });
 
+// Virtual for ISO formatted game's release date.
+GameSchema.virtual("released_ISO").get(function () {
+  return DateTime.fromJSDate(this.released).toISODate(); // format 'YYYY-MM-DD'
+});
+
 // Export model
 module.exports = mongoose.model("Game", GameSchema);
