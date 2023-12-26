@@ -5,6 +5,7 @@ const Developer = require("../models/developer");
 const Console = require("../models/console");
 
 const asyncHandler = require("express-async-handler");
+const { body, validationResult } = require("express-validator");
 
 // Displays the Inventory home page
 exports.index = asyncHandler(async (req, res, next) => {
@@ -64,13 +65,118 @@ exports.game_detail = asyncHandler(async (req, res, next) => {
 
 // Displays Game create form on GET.
 exports.game_create_get = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Game create GET");
+  const [allDevelopers, allGenres, allConsoles] = await Promise.all([
+    Developer.find({}).sort({ name: 1 }).exec(),
+    Genre.find({}).sort({ name: 1 }).exec(),
+    Console.find({}).sort({ name: 1 }).exec(),
+  ]);
+
+  res.render("game/form", {
+    title: "Create Game",
+    developers_list: allDevelopers,
+    genres_list: allGenres,
+    consoles_list: allConsoles,
+  });
 });
 
 // Handles Game create on POST.
-exports.game_create_post = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Game create POST");
-});
+exports.game_create_post = [
+  // Convert genres and consoles to arrays.
+  (req, res, next) => {
+    if (!(req.body.genre instanceof Array)) {
+      if (typeof req.body.genre === "undefined") {
+        req.body.genre = [];
+      } else {
+        req.body.genre = new Array(req.body.genre);
+      }
+    }
+
+    if (!(req.body.consoles_available instanceof Array)) {
+      if (typeof req.body.consoles_available === "undefined") {
+        req.body.consoles_available = [];
+      } else {
+        req.body.consoles_available = new Array(req.body.consoles_available);
+      }
+    }
+    next();
+  },
+
+  // Validate form data
+  body("title", "Title must not be empty").trim().isLength({ min: 5 }).escape(),
+  body("developer")
+    .trim()
+    .isLength({ min: 1 })
+    .optional({ values: "falsy" })
+    .escape(),
+  // The wildcard (*) is used to individually validate each of the genre array entries.
+  body("genre.*").optional({ values: "falsy" }).escape(),
+  body("description")
+    .trim()
+    .optional({ values: "falsy" })
+    .isLength({ min: 1 })
+    .escape(),
+  body("released").optional({ values: "falsy" }).escape(),
+  // The wildcard (*) is used to individually validate each of the consoles_available array entries.
+  body("consoles_available.*").optional({ values: "falsy" }).escape(),
+
+  asyncHandler(async (req, res, next) => {
+    console.log("async start");
+    // Extract the validation errors from a request
+    const errors = validationResult(req);
+
+    // Create Game object.
+    const game = new Game({
+      title: req.body.title,
+      developer: req.body.developer,
+      genres: req.body.genres,
+      description: req.body.description,
+      released: req.body.released,
+      consoles_available: req.body.consoles_available,
+    });
+
+    // Render form again if errors exist.
+    if (!errors.isEmpty()) {
+      console.log("errors");
+      const [allDevelopers, allGenres, allConsoles] = await Promise.all([
+        Developer.find({}).sort({ name: 1 }).exec(),
+        Genre.find({}).sort({ name: 1 }).exec(),
+        Console.find({}).sort({ name: 1 }).exec(),
+      ]);
+
+      console.log();
+      // Marking selected genres.
+      for (const genre of allGenres) {
+        if (game.genres.includes(genre._id)) {
+          genre.checked = "true";
+        }
+      }
+
+      // Marking selected consoles.
+      for (const console of allConsoles) {
+        if (game.consoles_available.includes(console._id)) {
+          console.checked = "true";
+        }
+      }
+
+      res.render("game/form", {
+        title: "Create Game",
+        developers_list: allDevelopers,
+        genres_list: allGenres,
+        consoles_list: allConsoles,
+        errors: errors.array(),
+        game: game,
+      });
+      return;
+    }
+    // Valid form data.
+    // Save object and redirect to it's page.
+    else {
+      console.log("saving");
+      await game.save();
+      res.redirect(game.url);
+    }
+  }),
+];
 
 // Displays Game delete form on GET.
 exports.game_delete_get = asyncHandler(async (req, res, next) => {
