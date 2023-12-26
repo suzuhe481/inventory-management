@@ -1,0 +1,45 @@
+extends ../template/layout
+
+block content 
+  h1= title
+
+  form(method="POST" action="")
+    div.form-group
+      label(for="title") Title:
+      input#title.form-control(type="text" name="title" required=true value=(game === undefined ? "" : game.title))
+
+    div.form-group
+      label(for="developer") Developer: (Optional)
+      select#developer.form-control(type="select" name="developer")
+        option(value="" disabled selected) Select Developer
+        for developer in developers_list 
+          if game
+            option(value=developer._id selected=(developer._id.toString()===game.developer._id.toString() ? "selected" : false)) #{developer.name}
+          else 
+            option(value=developer._id) #{developer.name}
+
+    div.form-group
+      label Genre: (Optional)
+      div
+        for genre in genres_list 
+          div(style="display: inline; padding-right: 10px;")
+            input.checkbox-input(type="checkbox" name="genres" id=genre._id value=genre._id checked=genre.checked)
+            label(for=genre._id style="padding-left: 5px;") #{genre.name}
+
+    div.form-group
+      label(for="description") Description: (Optional)
+      textarea#description.form-control(type="textarea" name="description") #{game === undefined ? "" : game.description}
+
+    div.form-group
+      label(for="released") Release date: (Optional)
+      input#released.form-control(type="date" name="released" value=(game === undefined ? "" : game.released_ISO))
+
+    div.form-group
+      label(for="consoles_available") Console Available: (Optional)
+      div
+        for console in consoles_list 
+          div(style="display: inline; padding-right: 10px;")
+            input.checkbox-input(type="checkbox" name="consoles_available" id=console._id value=console._id checked=console.checked)
+            label(for=console._id style="padding-left: 5px;") #{console.name}
+
+    button.btn.btn-primary(type="submit") Submit
