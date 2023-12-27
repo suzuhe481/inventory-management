@@ -89,12 +89,47 @@ exports.genre_create_post = [
 
 // Displays Genre delete form on GET.
 exports.genre_delete_get = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Genre delete GET");
+  const [genre, gamesForGenre] = await Promise.all([
+    Genre.findById(req.params.id).exec(),
+    Game.find({ genre: req.params.id }).exec(),
+  ]);
+
+  // No results.
+  // Redirect to genres list.
+  if (genre === null) {
+    res.redirect("inventory/genres");
+  }
+
+  res.render("genre/delete", {
+    title: "Delete Genre",
+    genre: genre,
+    genre_games: gamesForGenre,
+  });
 });
 
 // Handles Genre delete on POST.
 exports.genre_delete_post = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Genre delete POST");
+  // Only deletes genre if it has no games.
+  const [genre, gamesForGenre] = await Promise.all([
+    Genre.findById(req.params.id).exec(),
+    Game.find({ genre: req.params.id }).exec(),
+  ]);
+
+  if (gamesForGenre.length > 0) {
+    res.render("genre/delete", {
+      title: "Delete Genre",
+      genre: genre,
+      genre_games: gamesForGenre,
+    });
+    return;
+  }
+  // Safe to delete.
+  // Redirect to genres list.
+  else {
+    await Genre.findByIdAndDelete(req.params.id).exec();
+
+    res.redirect("/inventory/genres");
+  }
 });
 
 // Displays Genre update on GET.
