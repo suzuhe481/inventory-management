@@ -1,0 +1,23 @@
+extends ../template/layout
+
+block content 
+  h1 #{title}: #{genre.name}
+
+  if genre_games.length
+    p #[strong Delete the following games before deleting this genre.]
+
+    div 
+      h4 Games
+
+      dl 
+      each game in genre_games 
+        dt
+          a(href=game.url) #{game.title}
+  else 
+    p Do you really want to delete this genre?
+
+    form(method="POST" action="")
+      div.form-group
+      input#genreid.form-control(type="hidden" name="genreid" required="true" value=genre.id)
+
+      button.btn.btn-primary(type="submit") Submit
