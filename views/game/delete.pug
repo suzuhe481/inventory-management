@@ -1,0 +1,24 @@
+extends ../template/layout
+
+block content
+  h1 #{title}: #{game.title}
+
+  if game_gameinstances.length
+    p #[strong Delete the following game instances (copies) before deleting this game.]
+
+    div 
+      h4 Games
+
+      dl 
+      each gameinstance in game_gameinstances 
+        dt
+          a(href=gameinstance.url) #{gameinstance.game.title}
+        dd #{gameinstance.condition} - $#{gameinstance.price}
+  else 
+    p Do you really want to delete this game?
+
+    form(method="POST" action="")
+      div.form-group
+      input#gameid.form-control(type="hidden" name="gameid" required="true" value=game.id)
+
+      button.btn.btn-primary(type="submit") Submit
