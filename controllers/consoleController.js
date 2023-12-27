@@ -1,4 +1,5 @@
 const Console = require("../models/console");
+const Game = require("../models/game");
 
 const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
@@ -76,12 +77,48 @@ exports.console_create_post = [
 
 // Displays Console delete form on GET.
 exports.console_delete_get = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Console delete GET");
+  // Get the console and their associated games.
+  const [console, gamesForConsole] = await Promise.all([
+    Console.findById(req.params.id).exec(),
+    Game.find({ consoles_available: req.params.id }).exec(),
+  ]);
+
+  // No results.
+  // Redirect to consoles list.
+  if (console === null) {
+    res.redirect("inventory/consoles");
+  }
+
+  res.render("console/delete", {
+    title: "Delete Console",
+    console: console,
+    console_games: gamesForConsole,
+  });
 });
 
 // Handles Console delete on POST.
 exports.console_delete_post = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Console delete POST");
+  // Only deletes console if it has no games.
+  const [console, gamesForConsole] = await Promise.all([
+    Console.findById(req.params.id).exec(),
+    Game.find({ consoles_available: req.params.id }).exec(),
+  ]);
+
+  if (gamesForConsole.length > 0) {
+    res.render("console/delete", {
+      title: "Delete Console",
+      console: console,
+      console_games: gamesForConsole,
+    });
+    return;
+  }
+  // Console has no games. Safe to delete.
+  // Redirect to consoles list.
+  else {
+    await Console.findByIdAndDelete(req.params.id).exec();
+
+    res.redirect("/inventory/consoles");
+  }
 });
 
 // Displays Console update on GET.
