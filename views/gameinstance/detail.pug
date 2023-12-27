@@ -7,3 +7,7 @@ block content
   p #[strong Condition: ]#{gameinstance.condition} 
   p #[strong Platform: ] #{gameinstance.console.name}
   p $#{gameinstance.price}
+
+  hr
+  p 
+    a(href=gameinstance.url+"/delete") Delete Game Instance (copy)
