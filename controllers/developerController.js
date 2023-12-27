@@ -91,12 +91,48 @@ exports.developer_create_post = [
 
 // Displays Developer delete form on GET.
 exports.developer_delete_get = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Developer delete GET");
+  // Get the developer and their games.
+  const [developer, gamesByDeveloper] = await Promise.all([
+    Developer.findById(req.params.id).exec(),
+    Game.find({ developer: req.params.id }).exec(),
+  ]);
+
+  // No results. Redirect to developer page.
+  if (developer === null) {
+    console.log("no result");
+    res.redirect("/inventory/developers");
+  }
+
+  res.render("developer/delete", {
+    title: "Delete Developer",
+    developer: developer,
+    developer_games: gamesByDeveloper,
+  });
 });
 
 // Handles Developer delete on POST.
 exports.developer_delete_post = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Developer delete POST");
+  // Only deletes developer if they have no games.
+  const [developer, gamesByDeveloper] = await Promise.all([
+    Developer.findById(req.params.id).exec(),
+    Game.find({ developer: req.params.id }).exec(),
+  ]);
+
+  if (gamesByDeveloper.length > 0) {
+    res.render("developer/delete", {
+      title: "Delete Developer",
+      developer: developer,
+      developer_games: gamesByDeveloper,
+    });
+    return;
+  }
+  // Developer has no games. Safe to delete.
+  // Redirect to developers list.
+  else {
+    await Developer.findByIdAndDelete(req.params.id).exec();
+
+    res.redirect("/inventory/developers");
+  }
 });
 
 // Displays Developer update on GET.
