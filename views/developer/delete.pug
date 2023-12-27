@@ -1,0 +1,23 @@
+extends ../template/layout
+
+block content
+  h1 #{title}: #{developer.name}
+
+  if developer_games.length
+    p #[strong Delete the following games before deleting this developer.]
+
+    div 
+      h4 Games
+
+      dl 
+      each game in developer_games 
+        dt
+          a(href=game.url) #{game.title}
+  else 
+    p Do you really want to delete this developer?
+
+    form(method="POST" action="")
+      div.form-group
+      input#developerid.form-control(type="hidden" name="developerid" required="true" value=developer.id)
+
+      button.btn.btn-primary(type="submit") Submit
