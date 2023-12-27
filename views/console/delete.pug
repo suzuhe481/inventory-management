@@ -1,0 +1,23 @@
+extends ../template/layout
+
+block content 
+  h1 #{title}: #{console.name}
+
+  if console_games.length
+    p #[strong Delete the following games before deleting this console.]
+
+    div 
+      h4 Games
+
+      dl 
+      each game in console_games 
+        dt
+          a(href=game.url) #{game.title}
+  else 
+    p Do you really want to delete this console?
+
+    form(method="POST" action="")
+      div.form-group
+      input#consoleid.form-control(type="hidden" name="consoleid" required="true" value=console.id)
+
+      button.btn.btn-primary(type="submit") Submit
