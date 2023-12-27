@@ -99,7 +99,6 @@ exports.developer_delete_get = asyncHandler(async (req, res, next) => {
 
   // No results. Redirect to developer page.
   if (developer === null) {
-    console.log("no result");
     res.redirect("/inventory/developers");
   }
 
