@@ -120,7 +120,6 @@ exports.game_create_post = [
   body("consoles_available.*").optional({ values: "falsy" }).escape(),
 
   asyncHandler(async (req, res, next) => {
-    console.log("async start");
     // Extract the validation errors from a request
     const errors = validationResult(req);
 
@@ -136,14 +135,12 @@ exports.game_create_post = [
 
     // Render form again if errors exist.
     if (!errors.isEmpty()) {
-      console.log("errors");
       const [allDevelopers, allGenres, allConsoles] = await Promise.all([
         Developer.find({}).sort({ name: 1 }).exec(),
         Genre.find({}).sort({ name: 1 }).exec(),
         Console.find({}).sort({ name: 1 }).exec(),
       ]);
 
-      console.log();
       // Marking selected genres.
       for (const genre of allGenres) {
         if (game.genres.includes(genre._id)) {
@@ -171,7 +168,6 @@ exports.game_create_post = [
     // Valid form data.
     // Save object and redirect to it's page.
     else {
-      console.log("saving");
       await game.save();
       res.redirect(game.url);
     }
@@ -180,12 +176,48 @@ exports.game_create_post = [
 
 // Displays Game delete form on GET.
 exports.game_delete_get = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Game delete GET");
+  // Get the game and it's game instances.
+  const [game, gameInstancesForGame] = await Promise.all([
+    Game.findById(req.params.id).exec(),
+    GameInstance.find({ game: req.params.id }).populate("game").exec(),
+  ]);
+
+  // No results.
+  // Redirect to games list.
+  if (game === null) {
+    res.redirect("inventory/games");
+  }
+
+  res.render("game/delete", {
+    title: "Delete Game",
+    game: game,
+    game_gameinstances: gameInstancesForGame,
+  });
 });
 
 // Handles Game delete on POST.
 exports.game_delete_post = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Game delete POST");
+  // Only delete game if it has no game instances.
+  const [game, gameInstancesForGame] = await Promise.all([
+    Game.findById(req.params.id).exec(),
+    GameInstance.find({ game: req.params.id }).populate("game").exec(),
+  ]);
+
+  if (gameInstancesForGame.length > 0) {
+    res.render("game/delete", {
+      title: "Delete Game",
+      game: game,
+      game_gameinstances: gameInstancesForGame,
+    });
+    return;
+  }
+  // Game has no instances. Safe to delete.
+  // Redirect to games list.
+  else {
+    await Game.findByIdAndDelete(req.params.id).exec();
+
+    res.redirect("/inventory/games");
+  }
 });
 
 // Displays Game update on GET.
