@@ -102,12 +102,30 @@ exports.gameinstance_create_post = [
 
 // Displays GameInstance delete form on GET.
 exports.gameinstance_delete_get = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: GameInstance delete GET");
+  // Get the game instance
+  const gameinstance = await GameInstance.findById(req.params.id)
+    .populate("game console")
+    .exec();
+
+  // No results.
+  // Redirect to game instances list.
+  if (gameinstance === null) {
+    res.redirect("inventory/gameinstances");
+  }
+
+  res.render("gameinstance/delete", {
+    title: "Delete Game Instance (copy)",
+    gameinstance: gameinstance,
+  });
 });
 
 // Handles GameInstance delete on POST.
 exports.gameinstance_delete_post = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: GameInstance delete POST");
+  // Game instance can be deleted in any circumstance.
+  await GameInstance.findByIdAndDelete(req.params.id).exec();
+
+  // Redirect to game instances list page.
+  res.redirect("/inventory/gameinstances");
 });
 
 // Displays GameInstance update on GET.
