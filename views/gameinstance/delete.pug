@@ -1,0 +1,16 @@
+extends ../template/layout
+
+block content 
+  h1 #{title}: #{gameinstance.game.title}
+
+  p #[strong Condition: ]#{gameinstance.condition} 
+  p #[strong Platform: ] #{gameinstance.console.name}
+  p $#{gameinstance.price}
+
+  p Do you really want to delete this game instance (copy)?
+
+    form(method="POST" action="")
+      div.form-group
+      input#gameinstanceid.form-control(type="hidden" name="gameinstanceeid" required="true" value=gameinstance.id)
+
+      button.btn.btn-primary(type="submit") Submit
