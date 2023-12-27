@@ -124,7 +124,7 @@ router.post(
   game_instance_controller.gameinstance_delete_post
 );
 
-// GET requests to get one/all Genres.
+// GET requests to get one/all Game Instance.
 router.get("/gameinstance/:id", game_instance_controller.gameinstance_detail);
 router.get("/gameinstances", game_instance_controller.gameinstance_list);
 
