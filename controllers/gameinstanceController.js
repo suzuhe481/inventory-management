@@ -25,7 +25,7 @@ exports.gameinstance_detail = asyncHandler(async (req, res, next) => {
     .exec();
 
   if (gameInstance === null) {
-    const err = "Game copy not found";
+    const err = new Error("Game copy not found");
     err.status = 404;
     return next(err);
   }
@@ -130,10 +130,80 @@ exports.gameinstance_delete_post = asyncHandler(async (req, res, next) => {
 
 // Displays GameInstance update on GET.
 exports.gameinstance_update_get = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: GameInstance update GET");
+  const [gameInstance, allGames] = await Promise.all([
+    GameInstance.findById(req.params.id).exec(),
+    Game.find({}, "title")
+      .populate("consoles_available")
+      .sort({ title: 1 })
+      .exec(),
+  ]);
+
+  // No results.
+  if (gameInstance === null) {
+    const err = new Error("Game copy not found");
+    err.status = 404;
+    return next(err);
+  }
+
+  res.render("gameinstance/form", {
+    title: "Update Game Instance (copy)",
+    game_list: allGames,
+    gameinstance: gameInstance,
+  });
 });
 
 // Handles GameInstance update on POSt.
-exports.gameinstance_update_post = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: GameInstance update POST");
-});
+exports.gameinstance_update_post = [
+  // Validate form data
+  body("game", "Game must be specified").trim().isLength({ min: 1 }).escape(),
+  body("console", "Console must be specified")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body("price", "Price must be greater than 0.01")
+    .trim()
+    .isFloat({ min: 0.01 })
+    .escape(),
+  body("condition", "Invalid condition").escape(),
+
+  // Async
+  asyncHandler(async (req, res, next) => {
+    // Extract errors
+    const errors = validationResult(req);
+
+    // Create Game Instance object
+    const gameInstance = new GameInstance({
+      game: req.body.game,
+      console: req.body.console,
+      price: req.body.price,
+      condition: req.body.condition,
+      _id: req.params.id,
+    });
+
+    // Return form again if errors exist.
+    if (!errors.isEmpty()) {
+      const allGames = await Game.find({}, "title")
+        .populate("consoles_available")
+        .sort({ title: 1 })
+        .exec();
+
+      res.render("gameinstance/form", {
+        title: "Update Game Instance",
+        game_list: allGames,
+        errors: errors.array(),
+        gameinstance: gameInstance,
+      });
+      return;
+    }
+    // Form data is valid. Update object and redirect to it's page.
+    else {
+      const updatedGameInstance = await GameInstance.findByIdAndUpdate(
+        req.params.id,
+        gameInstance,
+        {}
+      );
+
+      res.redirect(updatedGameInstance.url);
+    }
+  }),
+];
