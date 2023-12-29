@@ -136,10 +136,60 @@ exports.developer_delete_post = asyncHandler(async (req, res, next) => {
 
 // Displays Developer update on GET.
 exports.developer_update_get = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Developer update GET");
+  const developer = await Developer.findById(req.params.id).exec();
+
+  if (developer === null) {
+    const err = new Error("Developer not found");
+    err.status = 404;
+    return next(err);
+  }
+
+  res.render("developer/form", {
+    title: `Update Developer: ${developer.name}`,
+    developer: developer,
+  });
 });
 
 // Handles Developer update on POSt.
-exports.developer_update_post = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Developer update POST");
-});
+exports.developer_update_post = [
+  // Validate and sanitize name field.
+  body("name", "Developer must contain at least 1 character.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+
+  // Process request after validation and sanitation.
+  asyncHandler(async (req, res, next) => {
+    // Extract the validation errors.
+    const errors = validationResult(req);
+
+    // Create developer object with escaped/trimmed data.
+    const developer = new Developer({
+      name: req.body.name,
+      _id: req.params.id,
+    });
+
+    // There are errors.
+    // Render form again with sanitized values and error messages.
+    if (!errors.isEmpty()) {
+      res.render("developer/form", {
+        title: "Update Developer",
+        developer: developer,
+        errors: errors.array(),
+      });
+      return;
+    }
+    // Data is valid.
+    // Update developer.
+    // Redirect to it's detail page.
+    else {
+      const updatedDeveloper = await Developer.findByIdAndUpdate(
+        req.params.id,
+        developer,
+        {}
+      );
+      res.redirect(updatedDeveloper.url);
+    }
+    // }
+  }),
+];
