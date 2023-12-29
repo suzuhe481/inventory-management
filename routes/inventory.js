@@ -66,7 +66,10 @@ router.post(
 
 // GET/POST requests for updating a Developer.
 router.get("/developer/:id/update", developer_controller.developer_update_get);
-router.post("/developer/:id/update", developer_controller.developer_update_get);
+router.post(
+  "/developer/:id/update",
+  developer_controller.developer_update_post
+);
 
 // GET/POST requests for one/all Developers.
 router.get("/developer/:id", developer_controller.developer_detail);
