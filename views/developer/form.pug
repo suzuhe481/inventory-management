@@ -8,6 +8,22 @@ block content
       label(for="name") Developer:
       input#name.form-control(type="text" name="name" required=true value=(developer === undefined ? "" : developer.name))
 
+    div.form-group
+      label(for="year_established") Year Established: (Optional)
+      input#year_established.form-control(type="text" name="year_established" value=(developer === undefined ? "" : developer.year_established))
+
+    div.form-group
+      label(for="founders") Founders: (Optional)
+      input#founders.form-control(type="text" name="founders" value=(developer === undefined ? "" : developer.founders))
+
+    div.form-group
+      label(for="description") Description: (Optional)
+      textarea#description.form-control(type="textarea" name="description") #{game === undefined ? "" : game.description}
+
+    div.form-group
+      label(for="site") Site: (Optional)
+      input#site.form-control(type="text" name="site" value=(developer === undefined ? "" : developer.site))
+
     button.btn.btn-primary(type="submit") Submit
 
   if errors 
