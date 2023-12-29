@@ -48,6 +48,25 @@ exports.developer_create_post = [
     .trim()
     .isLength({ min: 1 })
     .escape(),
+  body("year_established", "Year Established must be 4 digits.")
+    .trim()
+    .isLength({ min: 4, max: 4 })
+    .optional({ values: "falsy" })
+    .escape(),
+  body("founders", "Founders must be under 500 characters.")
+    .trim()
+    .isLength({ max: 500 })
+    .optional({ values: "falsy" })
+    .escape(),
+  body("description", "Description must be under 500 characters.")
+    .trim()
+    .isLength({ max: 500 })
+    .optional({ values: "falsy" })
+    .escape(),
+  body("site", "Site must be a valid url.")
+    .trim()
+    .isURL()
+    .optional({ values: "falsy" }),
 
   // Process request after validation and sanitation.
   asyncHandler(async (req, res, next) => {
@@ -55,7 +74,13 @@ exports.developer_create_post = [
     const errors = validationResult(req);
 
     // Create developer object with escaped/trimmed data.
-    const developer = new Developer({ name: req.body.name });
+    const developer = new Developer({
+      name: req.body.name,
+      year_established: req.body.year_established,
+      founders: req.body.founders,
+      description: req.body.founders,
+      site: req.body.site,
+    });
 
     // There are errors.
     // Render form again with sanitized values and error messages.
@@ -157,6 +182,25 @@ exports.developer_update_post = [
     .trim()
     .isLength({ min: 1 })
     .escape(),
+  body("year_established", "Year Established must be 4 digits.")
+    .trim()
+    .isLength({ min: 4, max: 4 })
+    .optional({ values: "falsy" })
+    .escape(),
+  body("founders", "Founders must be under 500 characters.")
+    .trim()
+    .isLength({ max: 500 })
+    .optional({ values: "falsy" })
+    .escape(),
+  body("description", "Description must be under 500 characters.")
+    .trim()
+    .isLength({ max: 500 })
+    .optional({ values: "falsy" })
+    .escape(),
+  body("site", "Site must be a valid url.")
+    .trim()
+    .isURL()
+    .optional({ values: "falsy" }),
 
   // Process request after validation and sanitation.
   asyncHandler(async (req, res, next) => {
@@ -166,6 +210,10 @@ exports.developer_update_post = [
     // Create developer object with escaped/trimmed data.
     const developer = new Developer({
       name: req.body.name,
+      year_established: req.body.year_established,
+      founders: req.body.founders,
+      description: req.body.description,
+      site: req.body.site,
       _id: req.params.id,
     });
 
