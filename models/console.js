@@ -9,6 +9,12 @@ const ConsoleSchema = new Schema({
     minLength: 1,
     maxLength: 100,
   },
+  company: {
+    type: String,
+    required: true,
+    minLength: 1,
+    maxLength: 100,
+  },
 });
 
 // Virtual for console's url.
