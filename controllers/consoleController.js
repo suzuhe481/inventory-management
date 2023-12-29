@@ -132,7 +132,7 @@ exports.console_update_get = asyncHandler(async (req, res, next) => {
   }
 
   res.render("console/form", {
-    title: `Upudate Console: ${console.name}`,
+    title: `Update Console: ${console.name}`,
     console: console,
   });
 });
