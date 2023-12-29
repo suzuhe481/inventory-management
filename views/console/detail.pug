@@ -3,7 +3,13 @@ extends ../template/layout
 block content 
   h1= title
 
+  if console.company
+    p #{console.company}
+  else 
+    p No company
+  
   p #{console.name}
+
 
   hr
   p 
