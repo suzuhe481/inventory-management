@@ -155,29 +155,20 @@ exports.console_update_post = [
     // Return form if errors exist
     if (!errors.isEmpty()) {
       res.render("console/form", {
-        title: "Create Console",
+        title: "Update Console",
         console: console,
         errors: errors.array(),
       });
-    } else {
-      // Redirect to object page if object exists.
-      const consoleExists = await Console.findOne({ name: req.body.name })
-        .collation({ locale: "en", strength: 2 })
-        .exec();
+    }
+    // Update and redirect to updated page.
+    else {
+      const updatedConsole = await Console.findByIdAndUpdate(
+        req.params.id,
+        console,
+        {}
+      );
 
-      if (consoleExists) {
-        res.redirect(consoleExists.url);
-      }
-      // Update and redirect to updated page.
-      else {
-        const updatedConsole = await Console.findByIdAndUpdate(
-          req.params.id,
-          console,
-          {}
-        );
-
-        res.redirect(updatedConsole.url);
-      }
+      res.redirect(updatedConsole.url);
     }
   }),
 ];
