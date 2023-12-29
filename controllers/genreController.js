@@ -183,26 +183,14 @@ exports.genre_update_post = [
     }
     // Data is valid.
     else {
-      // Check if genre already exists.
-      // Case insensitive search and ignores accents.
-      const genreExists = await Genre.findOne({ name: req.body.name })
-        .collation({ locale: "en", strength: 2 })
-        .exec();
-
-      // Redirect to existing genre's detail page.
-      if (genreExists) {
-        res.redirect(genreExists.url);
-      }
       // Save updated genre.
       // Redirect to it's detail page.
-      else {
-        const updatedGenre = await Genre.findByIdAndUpdate(
-          req.params.id,
-          genre,
-          {}
-        );
-        res.redirect(updatedGenre.url);
-      }
+      const updatedGenre = await Genre.findByIdAndUpdate(
+        req.params.id,
+        genre,
+        {}
+      );
+      res.redirect(updatedGenre.url);
     }
   }),
 ];
