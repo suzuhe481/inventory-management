@@ -123,10 +123,61 @@ exports.console_delete_post = asyncHandler(async (req, res, next) => {
 
 // Displays Console update on GET.
 exports.console_update_get = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Console update GET");
+  const console = await Console.findById(req.params.id).exec();
+
+  if (console === null) {
+    const err = "Console not found";
+    err.status = 404;
+    return next(err);
+  }
+
+  res.render("console/form", {
+    title: `Upudate Console: ${console.name}`,
+    console: console,
+  });
 });
 
 // Handles Console update on POSt.
-exports.console_update_post = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Console update POST");
-});
+exports.console_update_post = [
+  // Validate form fields.
+  body("name", "Console must contain at least 1 character.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  // Async
+  asyncHandler(async (req, res, next) => {
+    // Extract errors from request.
+    const errors = validationResult(req);
+
+    // Create object with original object's id.
+    const console = new Console({ name: req.body.name, _id: req.params.id });
+
+    // Return form if errors exist
+    if (!errors.isEmpty()) {
+      res.render("console/form", {
+        title: "Create Console",
+        console: console,
+        errors: errors.array(),
+      });
+    } else {
+      // Redirect to object page if object exists.
+      const consoleExists = await Console.findOne({ name: req.body.name })
+        .collation({ locale: "en", strength: 2 })
+        .exec();
+
+      if (consoleExists) {
+        res.redirect(consoleExists.url);
+      }
+      // Update and redirect to updated page.
+      else {
+        const updatedConsole = await Console.findByIdAndUpdate(
+          req.params.id,
+          console,
+          {}
+        );
+
+        res.redirect(updatedConsole.url);
+      }
+    }
+  }),
+];
