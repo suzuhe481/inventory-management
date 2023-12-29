@@ -117,11 +117,11 @@ router.post(
 // GET/POST requests for updating a Game Instance.
 router.get(
   "/gameinstance/:id/update",
-  game_instance_controller.gameinstance_delete_get
+  game_instance_controller.gameinstance_update_get
 );
 router.post(
   "/gameinstance/:id/update",
-  game_instance_controller.gameinstance_delete_post
+  game_instance_controller.gameinstance_update_post
 );
 
 // GET requests to get one/all Game Instance.
