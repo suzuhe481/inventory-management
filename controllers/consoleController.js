@@ -42,13 +42,20 @@ exports.console_create_post = [
     .trim()
     .isLength({ min: 1 })
     .escape(),
+  body("company", "Company must contain at least 1 character.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
   // Async
   asyncHandler(async (req, res, next) => {
     // Extract errors from request.
     const errors = validationResult(req);
 
     // Create object
-    const console = new Console({ name: req.body.name });
+    const console = new Console({
+      name: req.body.name,
+      company: req.body.company,
+    });
 
     // Return form if errors exist
     if (!errors.isEmpty()) {
@@ -144,13 +151,21 @@ exports.console_update_post = [
     .trim()
     .isLength({ min: 1 })
     .escape(),
+  body("company", "Company must contain at least 1 character.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
   // Async
   asyncHandler(async (req, res, next) => {
     // Extract errors from request.
     const errors = validationResult(req);
 
     // Create object with original object's id.
-    const console = new Console({ name: req.body.name, _id: req.params.id });
+    const console = new Console({
+      name: req.body.name,
+      company: req.body.company,
+      _id: req.params.id,
+    });
 
     // Return form if errors exist
     if (!errors.isEmpty()) {
