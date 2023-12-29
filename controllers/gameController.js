@@ -222,10 +222,136 @@ exports.game_delete_post = asyncHandler(async (req, res, next) => {
 
 // Displays Game update on GET.
 exports.game_update_get = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Game update GET");
+  const [game, allDevelopers, allGenres, allConsoles] = await Promise.all([
+    Game.findById(req.params.id).exec(),
+    Developer.find({}).sort({ name: 1 }).exec(),
+    Genre.find({}).sort({ name: 1 }).exec(),
+    Console.find({}).sort({ name: 1 }).exec(),
+  ]);
+
+  // No results.
+  if (game === null) {
+    const error = new Error("Game not found");
+    err.status = 404;
+    return next(err);
+  }
+
+  // Marking selected genres.
+  for (const genre of allGenres) {
+    if (game.genres.includes(genre._id)) {
+      genre.checked = "true";
+    }
+  }
+
+  // Marking selected consoles.
+  for (const console of allConsoles) {
+    if (game.consoles_available.includes(console._id)) {
+      console.checked = "true";
+    }
+  }
+
+  res.render("game/form", {
+    title: "Update Game",
+    developers_list: allDevelopers,
+    genres_list: allGenres,
+    consoles_list: allConsoles,
+    game: game,
+  });
 });
 
 // Handles Game update on POSt.
-exports.game_update_post = asyncHandler(async (req, res, next) => {
-  res.send("Not implemented: Game update POST");
-});
+exports.game_update_post = [
+  // Convert genres and consoles to arrays.
+  (req, res, next) => {
+    if (!(req.body.genre instanceof Array)) {
+      if (typeof req.body.genre === "undefined") {
+        req.body.genre = [];
+      } else {
+        req.body.genre = new Array(req.body.genre);
+      }
+    }
+
+    if (!(req.body.consoles_available instanceof Array)) {
+      if (typeof req.body.consoles_available === "undefined") {
+        req.body.consoles_available = [];
+      } else {
+        req.body.consoles_available = new Array(req.body.consoles_available);
+      }
+    }
+    next();
+  },
+
+  // Validate form data
+  body("title", "Title must not be empty").trim().isLength({ min: 5 }).escape(),
+  body("developer")
+    .trim()
+    .isLength({ min: 1 })
+    .optional({ values: "falsy" })
+    .escape(),
+  // The wildcard (*) is used to individually validate each of the genre array entries.
+  body("genre.*").optional({ values: "falsy" }).escape(),
+  body("description")
+    .trim()
+    .optional({ values: "falsy" })
+    .isLength({ min: 1 })
+    .escape(),
+  body("released").optional({ values: "falsy" }).escape(),
+  // The wildcard (*) is used to individually validate each of the consoles_available array entries.
+  body("consoles_available.*").optional({ values: "falsy" }).escape(),
+
+  asyncHandler(async (req, res, next) => {
+    // Extract the validation errors from a request
+    const errors = validationResult(req);
+
+    // Create Game object.
+    const game = new Game({
+      title: req.body.title,
+      developer: req.body.developer,
+      genres: req.body.genres,
+      description: req.body.description,
+      released: req.body.released,
+      consoles_available: req.body.consoles_available,
+      _id: req.params.id,
+    });
+
+    // Render form again if errors exist.
+    if (!errors.isEmpty()) {
+      const [allDevelopers, allGenres, allConsoles] = await Promise.all([
+        Developer.find({}).sort({ name: 1 }).exec(),
+        Genre.find({}).sort({ name: 1 }).exec(),
+        Console.find({}).sort({ name: 1 }).exec(),
+      ]);
+
+      // Marking selected genres.
+      for (const genre of allGenres) {
+        if (game.genres.includes(genre._id)) {
+          genre.checked = "true";
+        }
+      }
+
+      // Marking selected consoles.
+      for (const console of allConsoles) {
+        if (game.consoles_available.includes(console._id)) {
+          console.checked = "true";
+        }
+      }
+
+      res.render("game/form", {
+        title: "Update Game",
+        developers_list: allDevelopers,
+        genres_list: allGenres,
+        consoles_list: allConsoles,
+        errors: errors.array(),
+        game: game,
+      });
+      return;
+    }
+    // Valid form data.
+    // Update object and redirect to it's page.
+    else {
+      const updatedGame = await Game.findByIdAndUpdate(req.params.id, game, {});
+
+      res.redirect(updatedGame.url);
+    }
+  }),
+];
