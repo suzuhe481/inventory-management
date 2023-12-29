@@ -5,6 +5,19 @@ block content
 
   p #{developer.name}
 
+  if developer.year_established
+    p #[strong Established]: #{developer.year_established}
+
+  if developer.founders
+    p #[strong Founders]: #{developer.founders}
+  
+  if developer.description
+    p #[strong Description]:
+    p #{developer.description} 
+  
+  if developer.site 
+    a(href=developer.site target="_blank" rel="noopener noreferrer") Developer Site 
+
   each game in developer_games
     hr
     a(href=game.url) #{game.title}
