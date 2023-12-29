@@ -13,7 +13,7 @@ block content
       select#developer.form-control(type="select" name="developer")
         option(value="" disabled selected) Select Developer
         for developer in developers_list 
-          if game
+          if game.developer
             option(value=developer._id selected=(developer._id.toString()===game.developer._id.toString() ? "selected" : false)) #{developer.name}
           else 
             option(value=developer._id) #{developer.name}
