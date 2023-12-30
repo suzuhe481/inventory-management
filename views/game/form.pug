@@ -13,10 +13,7 @@ block content
       select#developer.form-control(type="select" name="developer")
         option(value="" disabled selected) Select Developer
         for developer in developers_list 
-          if game.developer
-            option(value=developer._id selected=(developer._id.toString()===game.developer._id.toString() ? "selected" : false)) #{developer.name}
-          else 
-            option(value=developer._id) #{developer.name}
+          option(value=developer._id selected=(game === undefined ? false : game.developer._id==developer._id.toString())) #{developer.name}
 
     div.form-group
       label Genre: (Optional)
@@ -41,5 +38,23 @@ block content
           div(style="display: inline; padding-right: 10px;")
             input.checkbox-input(type="checkbox" name="consoles_available" id=console._id value=console._id checked=console.checked)
             label(for=console._id style="padding-left: 5px;") #{console.name}
+
+    div.form-group
+      label(for="rating") Rating: 
+      select#rating.form-control(type="select" placeholder="Select Rating" name="rating" required=true)
+        option(value="" disabled selected) Select Rating
+        option(value="RP (Rating Pending)" selected=(game === undefined || game.rating!="RP (Rating Pending)" ? false : "selected")) RP (Rating Pending)
+        option(value="E (Everyone)" selected=(game === undefined || game.rating!="E (Everyone)" ? false : "selected")) E (Everyone)
+        option(value="E10+ (Everyone 10+)" selected=(game === undefined || game.rating!="E10+ (Everyone 10+)" ? false : "selected")) E10+ (Everyone 10+)
+        option(value="T (Teen)" selected=(game === undefined || game.rating!="T (Teen)" ? false : "selected")) T (Teen)
+        option(value="M (Mature)" selected=(game === undefined || game.rating!="M (Mature)" ? false : "selected")) M (Mature)
+        //- option(value="New" selected=(gameinstance===undefined || gameinstance.rating!="New" ? false : "selected")) New 
+        //- option(value="Used" selected=(gameinstance===undefined || gameinstance.rating!="Used" ? false : "selected")) Used
+      
+    
+    div.form-group
+      label(for="cover_art") Cover Art URL:
+      input#cover_art.form-control(type="text" name="cover_art" value=(game===undefined ? false : game.cover_art))
+
 
     button.btn.btn-primary(type="submit") Submit
