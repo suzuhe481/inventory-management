@@ -20,6 +20,19 @@ const GameSchema = new Schema({
     type: Date,
   },
   consoles_available: [{ type: Schema.Types.ObjectId, ref: "Console" }],
+  rating: {
+    type: String,
+    enum: [
+      "E (Everyone)",
+      "E10+ (Everyone 10+)",
+      "T (Teen)",
+      "M (Mature)",
+      "RP (Rating Pending)",
+    ],
+  },
+  cover_art: {
+    type: String,
+  },
 });
 
 // Virtual for game's url.
