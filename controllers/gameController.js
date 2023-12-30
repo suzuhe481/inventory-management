@@ -118,6 +118,11 @@ exports.game_create_post = [
   body("released").optional({ values: "falsy" }).escape(),
   // The wildcard (*) is used to individually validate each of the consoles_available array entries.
   body("consoles_available.*").optional({ values: "falsy" }).escape(),
+  body("rating", "Invalid rating").escape(),
+  body("cover_art", "Invalid art url.")
+    .trim()
+    .isURL()
+    .optional({ values: "falsy" }),
 
   asyncHandler(async (req, res, next) => {
     // Extract the validation errors from a request
@@ -131,6 +136,8 @@ exports.game_create_post = [
       description: req.body.description,
       released: req.body.released,
       consoles_available: req.body.consoles_available,
+      rating: req.body.rating,
+      cover_art: req.body.cover_art,
     });
 
     // Render form again if errors exist.
@@ -298,6 +305,11 @@ exports.game_update_post = [
   body("released").optional({ values: "falsy" }).escape(),
   // The wildcard (*) is used to individually validate each of the consoles_available array entries.
   body("consoles_available.*").optional({ values: "falsy" }).escape(),
+  body("rating", "Invalid rating").optional({ values: "falsy" }).escape(),
+  body("cover_art", "Invalid art url.")
+    .trim()
+    .isURL()
+    .optional({ values: "falsy" }),
 
   asyncHandler(async (req, res, next) => {
     // Extract the validation errors from a request
@@ -311,6 +323,8 @@ exports.game_update_post = [
       description: req.body.description,
       released: req.body.released,
       consoles_available: req.body.consoles_available,
+      rating: req.body.rating,
+      cover_art: req.body.cover_art,
       _id: req.params.id,
     });
 
