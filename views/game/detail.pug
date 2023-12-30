@@ -3,6 +3,9 @@ extends ../template/layout
 block content 
   h1= title 
 
+  if game.cover_art 
+    img(src=game.cover_art style="width: 200px;")
+
   if game.developer
     p #[strong Developer:] #{game.developer.name}
   else 
@@ -22,6 +25,11 @@ block content
     p #[strong Available on: ] #{game.consoles_list}
   else
     p #[strong Available on: ] Consoles Unannounced
+  
+  if game.rating 
+    p #[strong Rating: ] #{game.rating}
+  else 
+    p #[strong Rating: ] Rating Pending
 
   br
   
