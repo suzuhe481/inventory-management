@@ -44,6 +44,10 @@ exports.developer_create_get = (req, res, next) => {
 // Handles Developer create on POST.
 exports.developer_create_post = [
   // Validate and sanitize name field.
+  body("password", "Invalid password")
+    .trim()
+    .escape()
+    .equals(process.env.ADMIN_PASS),
   body("name", "Developer must contain at least 1 character.")
     .trim()
     .isLength({ min: 1 })
@@ -135,29 +139,64 @@ exports.developer_delete_get = asyncHandler(async (req, res, next) => {
 });
 
 // Handles Developer delete on POST.
-exports.developer_delete_post = asyncHandler(async (req, res, next) => {
-  // Only deletes developer if they have no games.
-  const [developer, gamesByDeveloper] = await Promise.all([
-    Developer.findById(req.params.id).exec(),
-    Game.find({ developer: req.params.id }).exec(),
-  ]);
+exports.developer_delete_post = [
+  // Validating password separately first.
+  body("password", "Invalid password")
+    .trim()
+    .escape()
+    .equals(process.env.ADMIN_PASS),
 
-  if (gamesByDeveloper.length > 0) {
-    res.render("developer/delete", {
-      title: "Delete Developer",
-      developer: developer,
-      developer_games: gamesByDeveloper,
-    });
-    return;
-  }
-  // Developer has no games. Safe to delete.
-  // Redirect to developers list.
-  else {
-    await Developer.findByIdAndDelete(req.params.id).exec();
+  // Process request after validation and sanitation.
+  asyncHandler(async (req, res, next) => {
+    // Extract the validation errors.
+    const errors = validationResult(req);
 
-    res.redirect("/inventory/developers");
-  }
-});
+    // Only deletes developer if they have no games.
+    const [developer, gamesByDeveloper] = await Promise.all([
+      Developer.findById(req.params.id).exec(),
+      Game.find({ developer: req.params.id }).exec(),
+    ]);
+
+    // There are errors.
+    // Render form again with sanitized values and error messages.
+    if (!errors.isEmpty()) {
+      res.render("developer/delete", {
+        title: "Delete Developer",
+        developer: developer,
+        errors: errors.array(),
+        developer: developer,
+        developer_games: gamesByDeveloper,
+      });
+      return;
+    } else {
+      next();
+    }
+  }),
+
+  asyncHandler(async (req, res, next) => {
+    // Only deletes developer if they have no games.
+    const [developer, gamesByDeveloper] = await Promise.all([
+      Developer.findById(req.params.id).exec(),
+      Game.find({ developer: req.params.id }).exec(),
+    ]);
+
+    if (gamesByDeveloper.length > 0) {
+      res.render("developer/delete", {
+        title: "Delete Developer",
+        developer: developer,
+        developer_games: gamesByDeveloper,
+      });
+      return;
+    }
+    // Developer has no games. Safe to delete.
+    // Redirect to developers list.
+    else {
+      await Developer.findByIdAndDelete(req.params.id).exec();
+
+      res.redirect("/inventory/developers");
+    }
+  }),
+];
 
 // Displays Developer update on GET.
 exports.developer_update_get = asyncHandler(async (req, res, next) => {
@@ -178,6 +217,10 @@ exports.developer_update_get = asyncHandler(async (req, res, next) => {
 // Handles Developer update on POSt.
 exports.developer_update_post = [
   // Validate and sanitize name field.
+  body("password", "Invalid password")
+    .trim()
+    .escape()
+    .equals(process.env.ADMIN_PASS),
   body("name", "Developer must contain at least 1 character.")
     .trim()
     .isLength({ min: 1 })
