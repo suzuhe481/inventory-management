@@ -3,6 +3,7 @@ const Game = require("../models/game");
 
 const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
+require("dotenv").config();
 
 // Displays a list of all Genres.
 exports.genre_list = asyncHandler(async (req, res, next) => {
@@ -42,6 +43,10 @@ exports.genre_create_get = (req, res, next) => {
 // Handles Genre create on POST.
 exports.genre_create_post = [
   // Validate and sanitize the name field.
+  body("password", "Invalid password")
+    .trim()
+    .escape()
+    .equals(process.env.ADMIN_PASS),
   body("name", "Genre must contain at least 1 character.")
     .trim()
     .isLength({ min: 1 })
@@ -108,29 +113,61 @@ exports.genre_delete_get = asyncHandler(async (req, res, next) => {
 });
 
 // Handles Genre delete on POST.
-exports.genre_delete_post = asyncHandler(async (req, res, next) => {
-  // Only deletes genre if it has no games.
-  const [genre, gamesForGenre] = await Promise.all([
-    Genre.findById(req.params.id).exec(),
-    Game.find({ genre: req.params.id }).exec(),
-  ]);
+exports.genre_delete_post = [
+  // Validating password separately first.
+  body("password", "Invalid password")
+    .trim()
+    .escape()
+    .equals(process.env.ADMIN_PASS),
 
-  if (gamesForGenre.length > 0) {
-    res.render("genre/delete", {
-      title: "Delete Genre",
-      genre: genre,
-      genre_games: gamesForGenre,
-    });
-    return;
-  }
-  // Safe to delete.
-  // Redirect to genres list.
-  else {
-    await Genre.findByIdAndDelete(req.params.id).exec();
+  asyncHandler(async (req, res, next) => {
+    // Extract errors. (Password incorrect)
+    const errors = validationResult(req);
 
-    res.redirect("/inventory/genres");
-  }
-});
+    const [genre, gamesForGenre] = await Promise.all([
+      Genre.findById(req.params.id).exec(),
+      Game.find({ genre: req.params.id }).exec(),
+    ]);
+
+    // Password doesn't match.
+    // Render form again with sanitized values and error messages.
+    if (!errors.isEmpty()) {
+      res.render("genre/delete", {
+        title: "Delete Genre",
+        genre: genre,
+        genre_games: gamesForGenre,
+        errors: errors.array(),
+      });
+      return;
+    } else {
+      next();
+    }
+  }),
+
+  asyncHandler(async (req, res, next) => {
+    // Only deletes genre if it has no games.
+    const [genre, gamesForGenre] = await Promise.all([
+      Genre.findById(req.params.id).exec(),
+      Game.find({ genre: req.params.id }).exec(),
+    ]);
+
+    if (gamesForGenre.length > 0) {
+      res.render("genre/delete", {
+        title: "Delete Genre",
+        genre: genre,
+        genre_games: gamesForGenre,
+      });
+      return;
+    }
+    // Safe to delete.
+    // Redirect to genres list.
+    else {
+      await Genre.findByIdAndDelete(req.params.id).exec();
+
+      res.redirect("/inventory/genres");
+    }
+  }),
+];
 
 // Displays Genre update on GET.
 exports.genre_update_get = asyncHandler(async (req, res, next) => {
@@ -154,7 +191,11 @@ exports.genre_update_get = asyncHandler(async (req, res, next) => {
 
 // Handles Genre update on POSt.
 exports.genre_update_post = [
-  // Validate and sanitize the name field.
+  // Validate form.
+  body("password", "Invalid password")
+    .trim()
+    .escape()
+    .equals(process.env.ADMIN_PASS),
   body("name", "Genre must contain at least 1 character.")
     .trim()
     .isLength({ min: 1 })
@@ -175,7 +216,7 @@ exports.genre_update_post = [
     // Render form again with sanitized values and error messages.
     if (!errors.isEmpty()) {
       res.render("genre/form", {
-        title: `Update Genre: ${genre.name}`,
+        title: `Update Genre`,
         genre: genre,
         errors: errors.array(),
       });
