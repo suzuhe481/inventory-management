@@ -38,6 +38,10 @@ exports.console_create_get = (req, res, next) => {
 // Handles Console create on POST.
 exports.console_create_post = [
   // Validate form fields.
+  body("password", "Invalid password")
+    .trim()
+    .escape()
+    .equals(process.env.ADMIN_PASS),
   body("name", "Console must contain at least 1 character.")
     .trim()
     .isLength({ min: 1 })
@@ -46,6 +50,7 @@ exports.console_create_post = [
     .trim()
     .isLength({ min: 1 })
     .escape(),
+
   // Async
   asyncHandler(async (req, res, next) => {
     // Extract errors from request.
@@ -104,29 +109,61 @@ exports.console_delete_get = asyncHandler(async (req, res, next) => {
 });
 
 // Handles Console delete on POST.
-exports.console_delete_post = asyncHandler(async (req, res, next) => {
-  // Only deletes console if it has no games.
-  const [console, gamesForConsole] = await Promise.all([
-    Console.findById(req.params.id).exec(),
-    Game.find({ consoles_available: req.params.id }).exec(),
-  ]);
+exports.console_delete_post = [
+  // Validate form fields.
+  body("password", "Invalid password")
+    .trim()
+    .escape()
+    .equals(process.env.ADMIN_PASS),
 
-  if (gamesForConsole.length > 0) {
-    res.render("console/delete", {
-      title: "Delete Console",
-      console: console,
-      console_games: gamesForConsole,
-    });
-    return;
-  }
-  // Console has no games. Safe to delete.
-  // Redirect to consoles list.
-  else {
-    await Console.findByIdAndDelete(req.params.id).exec();
+  asyncHandler(async (req, res, next) => {
+    // Extract errors. (Password incorrect)
+    const errors = validationResult(req);
 
-    res.redirect("/inventory/consoles");
-  }
-});
+    const [console, gamesForConsole] = await Promise.all([
+      Console.findById(req.params.id).exec(),
+      Game.find({ consoles_available: req.params.id }).exec(),
+    ]);
+
+    // Password doesn't match.
+    // Render form again with sanitized values and error messages.
+    if (!errors.isEmpty()) {
+      res.render("console/delete", {
+        title: "Delete Console",
+        console: console,
+        console_games: gamesForConsole,
+        errors: errors.array(),
+      });
+      return;
+    } else {
+      next();
+    }
+  }),
+
+  asyncHandler(async (req, res, next) => {
+    // Only deletes console if it has no games.
+    const [console, gamesForConsole] = await Promise.all([
+      Console.findById(req.params.id).exec(),
+      Game.find({ consoles_available: req.params.id }).exec(),
+    ]);
+
+    if (gamesForConsole.length > 0) {
+      res.render("console/delete", {
+        title: "Delete Console",
+        console: console,
+        console_games: gamesForConsole,
+      });
+      return;
+    }
+    // Console has no games. Safe to delete.
+    // Redirect to consoles list.
+    else {
+      await Console.findByIdAndDelete(req.params.id).exec();
+
+      res.redirect("/inventory/consoles");
+    }
+  }),
+];
 
 // Displays Console update on GET.
 exports.console_update_get = asyncHandler(async (req, res, next) => {
@@ -147,6 +184,10 @@ exports.console_update_get = asyncHandler(async (req, res, next) => {
 // Handles Console update on POSt.
 exports.console_update_post = [
   // Validate form fields.
+  body("password", "Invalid password")
+    .trim()
+    .escape()
+    .equals(process.env.ADMIN_PASS),
   body("name", "Console must contain at least 1 character.")
     .trim()
     .isLength({ min: 1 })
