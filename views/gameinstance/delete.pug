@@ -3,14 +3,28 @@ extends ../template/layout
 block content 
   h1 #{title}: #{gameinstance.game.title}
 
+
+  p #[strong Admin access is required to submit this form.]
+  br
+
   p #[strong Condition: ]#{gameinstance.condition} 
   p #[strong Platform: ] #{gameinstance.console.name}
   p $#{gameinstance.price}
 
+  br
   p Do you really want to delete this game instance (copy)?
 
-    form(method="POST" action="")
-      div.form-group
+  form(method="POST" action="")
+    div.form-group
       input#gameinstanceid.form-control(type="hidden" name="gameinstanceeid" required="true" value=gameinstance.id)
 
-      button.btn.btn-primary(type="submit") Submit
+    div.form-group
+      label(for="password") Password: 
+      input#password.form-control(type="password" name="password" required=true)
+
+    button.btn.btn-primary(type="submit") Submit
+  
+  if errors 
+    ul 
+      for error in errors 
+        li!= error.msg
