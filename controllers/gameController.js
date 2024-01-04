@@ -102,6 +102,10 @@ exports.game_create_post = [
   },
 
   // Validate form data
+  body("password", "Invalid password")
+    .trim()
+    .escape()
+    .equals(process.env.ADMIN_PASS),
   body("title", "Title must not be empty").trim().isLength({ min: 5 }).escape(),
   body("developer")
     .trim()
@@ -203,29 +207,83 @@ exports.game_delete_get = asyncHandler(async (req, res, next) => {
 });
 
 // Handles Game delete on POST.
-exports.game_delete_post = asyncHandler(async (req, res, next) => {
-  // Only delete game if it has no game instances.
-  const [game, gameInstancesForGame] = await Promise.all([
-    Game.findById(req.params.id).exec(),
-    GameInstance.find({ game: req.params.id }).populate("game").exec(),
-  ]);
+exports.game_delete_post = [
+  // Validating password first.
+  body("password", "Invalid password")
+    .trim()
+    .escape()
+    .equals(process.env.ADMIN_PASS),
 
-  if (gameInstancesForGame.length > 0) {
-    res.render("game/delete", {
-      title: "Delete Game",
-      game: game,
-      game_gameinstances: gameInstancesForGame,
-    });
-    return;
-  }
-  // Game has no instances. Safe to delete.
-  // Redirect to games list.
-  else {
-    await Game.findByIdAndDelete(req.params.id).exec();
+  asyncHandler(async (req, res, next) => {
+    // Extract the validation errors from a request
+    const errors = validationResult(req);
 
-    res.redirect("/inventory/games");
-  }
-});
+    const [game, gameInstancesForGame] = await Promise.all([
+      Game.findById(req.params.id).exec(),
+      GameInstance.find({ game: req.params.id }).populate("game").exec(),
+    ]);
+
+    // Render form again if errors exist.
+    if (!errors.isEmpty()) {
+      const [allDevelopers, allGenres, allConsoles] = await Promise.all([
+        Developer.find({}).sort({ name: 1 }).exec(),
+        Genre.find({}).sort({ name: 1 }).exec(),
+        Console.find({}).sort({ name: 1 }).exec(),
+      ]);
+
+      // Marking selected genres.
+      for (const genre of allGenres) {
+        if (game.genres.includes(genre._id)) {
+          genre.checked = "true";
+        }
+      }
+
+      // Marking selected consoles.
+      for (const console of allConsoles) {
+        if (game.consoles_available.includes(console._id)) {
+          console.checked = "true";
+        }
+      }
+
+      res.render("game/delete", {
+        title: "Delete Game",
+        developers_list: allDevelopers,
+        game_gameinstances: gameInstancesForGame,
+        genres_list: allGenres,
+        consoles_list: allConsoles,
+        errors: errors.array(),
+        game: game,
+      });
+      return;
+    } else {
+      next();
+    }
+  }),
+
+  asyncHandler(async (req, res, next) => {
+    // Only delete game if it has no game instances.
+    const [game, gameInstancesForGame] = await Promise.all([
+      Game.findById(req.params.id).exec(),
+      GameInstance.find({ game: req.params.id }).populate("game").exec(),
+    ]);
+
+    if (gameInstancesForGame.length > 0) {
+      res.render("game/delete", {
+        title: "Delete Game",
+        game: game,
+        game_gameinstances: gameInstancesForGame,
+      });
+      return;
+    }
+    // Game has no instances. Safe to delete.
+    // Redirect to games list.
+    else {
+      await Game.findByIdAndDelete(req.params.id).exec();
+
+      res.redirect("/inventory/games");
+    }
+  }),
+];
 
 // Displays Game update on GET.
 exports.game_update_get = asyncHandler(async (req, res, next) => {
@@ -289,6 +347,10 @@ exports.game_update_post = [
   },
 
   // Validate form data
+  body("password", "Invalid password")
+    .trim()
+    .escape()
+    .equals(process.env.ADMIN_PASS),
   body("title", "Title must not be empty").trim().isLength({ min: 5 }).escape(),
   body("developer")
     .trim()
