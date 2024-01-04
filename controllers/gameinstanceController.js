@@ -52,6 +52,10 @@ exports.gameinstance_create_get = asyncHandler(async (req, res, next) => {
 // Handles GameInstance create on POST.
 exports.gameinstance_create_post = [
   // Validate form data
+  body("password", "Invalid password")
+    .trim()
+    .escape()
+    .equals(process.env.ADMIN_PASS),
   body("game", "Game must be specified").trim().isLength({ min: 1 }).escape(),
   body("console", "Console must be specified")
     .trim()
@@ -103,30 +107,60 @@ exports.gameinstance_create_post = [
 // Displays GameInstance delete form on GET.
 exports.gameinstance_delete_get = asyncHandler(async (req, res, next) => {
   // Get the game instance
-  const gameinstance = await GameInstance.findById(req.params.id)
+  const gameInstance = await GameInstance.findById(req.params.id)
     .populate("game console")
     .exec();
 
   // No results.
   // Redirect to game instances list.
-  if (gameinstance === null) {
+  if (gameInstance === null) {
     res.redirect("inventory/gameinstances");
   }
 
   res.render("gameinstance/delete", {
     title: "Delete Game Instance (copy)",
-    gameinstance: gameinstance,
+    gameinstance: gameInstance,
   });
 });
 
 // Handles GameInstance delete on POST.
-exports.gameinstance_delete_post = asyncHandler(async (req, res, next) => {
-  // Game instance can be deleted in any circumstance.
-  await GameInstance.findByIdAndDelete(req.params.id).exec();
+exports.gameinstance_delete_post = [
+  // Validating password.
+  body("password", "Invalid password")
+    .trim()
+    .escape()
+    .equals(process.env.ADMIN_PASS),
 
-  // Redirect to game instances list page.
-  res.redirect("/inventory/gameinstances");
-});
+  asyncHandler(async (req, res, next) => {
+    // Extract errors. (Password incorrect)
+    const errors = validationResult(req);
+
+    const gameInstance = await GameInstance.findById(req.params.id)
+      .populate("game")
+      .exec();
+
+    // There are errors.
+    // Render form again with sanitized values and error messages.
+    if (!errors.isEmpty()) {
+      res.render("gameinstance/delete", {
+        title: "Delete Game Instance (copy)",
+        gameinstance: gameInstance,
+        errors: errors.array(),
+      });
+      return;
+    } else {
+      next();
+    }
+  }),
+
+  asyncHandler(async (req, res, next) => {
+    // Game instance can be deleted in any circumstance.
+    await GameInstance.findByIdAndDelete(req.params.id).exec();
+
+    // Redirect to game instances list page.
+    res.redirect("/inventory/gameinstances");
+  }),
+];
 
 // Displays GameInstance update on GET.
 exports.gameinstance_update_get = asyncHandler(async (req, res, next) => {
@@ -155,6 +189,10 @@ exports.gameinstance_update_get = asyncHandler(async (req, res, next) => {
 // Handles GameInstance update on POSt.
 exports.gameinstance_update_post = [
   // Validate form data
+  body("password", "Invalid password")
+    .trim()
+    .escape()
+    .equals(process.env.ADMIN_PASS),
   body("game", "Game must be specified").trim().isLength({ min: 1 }).escape(),
   body("console", "Console must be specified")
     .trim()
