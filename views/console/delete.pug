@@ -3,6 +3,9 @@ extends ../template/layout
 block content 
   h1 #{title}: #{console.name}
 
+  p #[strong Admin access is required to submit this form.]
+  br
+
   if console_games.length
     p #[strong Delete the following games before deleting this console.]
 
@@ -20,4 +23,13 @@ block content
       div.form-group
       input#consoleid.form-control(type="hidden" name="consoleid" required="true" value=console.id)
 
+      div.form-group
+        label(for="password") Password: 
+        input#password.form-control(type="password" name="password" required=true)
+
       button.btn.btn-primary(type="submit") Submit
+  
+  if errors 
+    ul 
+      for error in errors 
+        li!= error.msg
