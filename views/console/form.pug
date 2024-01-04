@@ -3,14 +3,21 @@ extends ../template/layout
 block content 
   h1= title 
 
+  p #[strong Admin access is required to submit this form.]
+  br
+
   form(method="POST" action="")
+    div.form-group
+      label(for="password") Password: 
+      input#password.form-control(type="password" name="password" required=true)
+
     div.form-group
       label(for="name") Console: 
       input#name.form-control(type="text", name="name" required=true value=(console===undefined ? "" : console.name))
+    
     div.form-group
       label(for="company") Company: 
       input#company.form-control(type="text", name="company" required=true value=(console===undefined ? "" : console.company))
-
 
     button.btn.btn-primary(type="submit") Submit
 
