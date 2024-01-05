@@ -1,13 +1,22 @@
 extends ../template/layout 
 
 block content 
+  link(rel="stylesheet" type="text/css" href="/stylesheets/game_list.css")
+
   h1= title
 
-  ul 
+  ul.games-container
     each game in game_list 
-      li 
-        a(href=game.url) #{game.title}
-        p #{game.consoles_list}
+      li.game-card
+        div.art-container
+          a(href=game.url) 
+            if game.cover_art
+              img(src=game.cover_art)
+            else 
+              p.no-art No Art Available
+        div.info-container
+          a(href=game.url) #{game.title}
+          p #{game.consoles_list}
         
     else 
       p There are no games.
