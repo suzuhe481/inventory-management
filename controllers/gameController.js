@@ -33,7 +33,7 @@ exports.index = asyncHandler(async (req, res, next) => {
 exports.game_list = asyncHandler(async (req, res, next) => {
   const allGames = await Game.find({}, "title developer consoles_available")
     .sort({ title: 1 })
-    .populate("developer consoles_available")
+    .populate("developer consoles_available cover_art")
     .exec();
 
   res.render("game/list", { title: "Game List", game_list: allGames });
