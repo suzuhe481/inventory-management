@@ -11,22 +11,18 @@ const DeveloperSchema = new Schema({
   },
   year_established: {
     type: String,
-    minLength: 4,
     maxLength: 4,
   },
   founders: {
     type: String,
-    minLength: 1,
     maxLength: 500,
   },
   description: {
     type: String,
-    minLength: 1,
     maxLength: 500,
   },
   site: {
     type: String,
-    minLength: 1,
   },
 });
 
