@@ -1,0 +1,46 @@
+.games-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  list-style-type: none;
+
+  /* Styles each game card */
+  .game-card {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+
+    /* Styling the container holding game art */
+    .art-container {
+      width: 200px;
+      border: 1px solid black;
+
+      /* Removes underline on text for games with no art */
+      a {
+        text-decoration: none;
+      }
+
+      img {
+        width: 200px;
+        height: auto;
+      }
+
+      .no-art {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        color: white;
+        background-color: darkgray;
+        height: 300px;
+      }
+    }
+
+    .info-container {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+}
