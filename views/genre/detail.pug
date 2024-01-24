@@ -7,7 +7,7 @@ block content
   ul
     each game in genre_games
       li
-        a(href=game.url) #{game.title}
+        a(href=game.url) !{game.title}
     else 
       p This genre has no games.
       

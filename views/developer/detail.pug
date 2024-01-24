@@ -3,7 +3,7 @@ extends ../template/layout
 block content 
   h1= title 
 
-  p #{developer.name}
+  p !{developer.name}
 
   if developer.year_established
     p #[strong Established]: #{developer.year_established}
@@ -20,7 +20,7 @@ block content
 
   each game in developer_games
     hr
-    a(href=game.url) #{game.title}
+    a(href=game.url) !{game.title}
     p #[strong Platforms: ] #{game.consoles_list}
     p #[strong Genres:] #{game.genres_list}
   else 

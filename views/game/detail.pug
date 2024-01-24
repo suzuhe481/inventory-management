@@ -1,7 +1,7 @@
 extends ../template/layout  
 
 block content 
-  h1= title 
+  h1 !{title} 
 
   if game.cover_art 
     img(src=game.cover_art style="width: 200px;")
